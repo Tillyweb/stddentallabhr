@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบ HR ห.จ.ก. S.T.D.DENTALLAB (Live)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #a78bfa; /* violet-400 */
+            --primary-hover: #8b5cf6; /* violet-500 */
+        }
+        body { 
+            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(-45deg, #a855f7, #6366f1, #22d3ee, #67e8f9);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #1f2937; /* gray-800 */
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .loader { 
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite; 
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes float {
+            0% { transform: translateY(10vh) scale(0.8); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) scale(1.2); opacity: 0; }
+        }
+        .floating-emoji {
+            position: absolute;
+            bottom: -10%;
+            animation-name: float;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            user-select: none;
+            text-shadow: 0 0 10px rgba(0,0,0,0.1);
+            z-index: 0;
+        }
+
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; margin: 0; 
+        }
+        input[type=number] { -moz-appearance: textfield; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.35);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        .glass-input {
+            @apply mt-1 block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2;
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #1f2937;
+            transition: all 0.2s ease-in-out;
+        }
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.5);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
+        }
+        .glass-input::placeholder {
+            color: #6b7280;
+        }
+
+        #toast-notification {
+            transition: opacity 0.3s, transform 0.3s;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Hidden file input for evidence upload -->
+    <input type="file" id="evidence-upload-input" class="hidden" accept="image/*">
+
+    <div id="emoji-container" class="absolute top-0 left-0 w-full h-full overflow-hidden"></div>
+
+    <!-- Global Loader -->
+    <div id="global-loader" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center z-50">
+        <div class="loader h-12 w-12 border-4 border-t-4 border-gray-200 rounded-full"></div>
+        <p id="global-loader-text" class="text-white text-lg mt-4 font-semibold">กำลังดำเนินการ...</p>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="hidden fixed top-5 right-5 max-w-sm p-4 rounded-xl shadow-lg text-white z-50">
+        <p id="toast-message"></p>
+    </div>
+
+
+    <div id="app-container" class="min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6 relative">
+
+        <!-- Main Menu Section -->
+        <div id="main-menu-section" class="w-full max-w-lg relative z-10">
+            <!-- Error Panel for initial load failure -->
+            <div id="initial-load-error" class="hidden glass-panel p-6 mb-4 bg-red-100 border-red-500 border-2 text-left">
+                <h3 class="text-lg font-bold text-red-800 text-center">เกิดข้อผิดพลาดในการโหลดข้อมูล</h3>
+                <p class="text-sm text-red-700 mt-2">ไม่สามารถเชื่อมต่อกับ Google Sheet ของคุณได้</p>
+                <p class="text-xs text-gray-800 mt-3"><strong>ข้อความจากระบบ:</strong></p>
+                <p class="text-xs text-gray-600 font-mono mt-1 p-2 bg-red-50 rounded-md break-words" id="error-details"></p>
+                <p class="text-sm text-red-700 mt-4"><strong>วิธีแก้ไข:</strong></p>
+                <ul class="list-disc list-inside text-xs text-gray-800 mt-1 space-y-1">
+                    <li>ไปที่ไฟล์ Google Sheet ของคุณ</li>
+                    <li>ตรวจสอบว่ามีชีทที่ชื่อตรงตามนี้ทุกชีท (ตัวพิมพ์เล็ก-ใหญ่ และขีดล่าง `_` สำคัญ):
+                        <ul class="list-disc list-inside ml-4 font-mono text-violet-700">
+                            <li>Employees</li>
+                            <li>Leave_Types</li>
+                            <li>Entitlements</li>
+                            <li>LeaveRecords</li>
+                            <li>Config</li>
+                        </ul>
+                    </li>
+                    <li>หากแก้ไขชื่อชีทแล้ว ให้กลับไปที่หน้าสคริปต์และ **Deploy ใหม่** อีกครั้ง</li>
+                </ul>
+            </div>
+
+            <div id="main-menu-panel" class="glass-panel p-8">
+                <div class="text-center mb-8">
+                    <img src="https://img2.pic.in.th/pic/118319391_3492823027404734_6921895263357030205_n1271b4083dfbe55b.png" alt="Company Logo" class="mx-auto h-28 w-28 mb-4 rounded-full shadow-lg bg-white/50 p-1" onerror="this.onerror=null; this.src='https://placehold.co/112x112/FFFFFF/a78bfa?text=Logo';">
+                    <h1 class="text-3xl font-bold text-gray-900">ระบบจัดการข้อมูลการลา</h1>
+                </div>
+                <div class="space-y-4">
+                    <button id="btn-goto-request" class="w-full text-base py-3 px-6 rounded-full font-bold transition-all duration-300 ease-in-out transform hover:scale-105 text-white" style="background-color: var(--primary-color);">ยื่นใบลา</button>
+                    <button id="btn-goto-check" class="w-full text-base py-3 px-6 rounded-full font-bold transition-all duration-300 ease-in-out transform hover:scale-105 text-white" style="background-color: var(--primary-color);">ตรวจสอบวันลา</button>
+                    <button id="btn-goto-approval" class="w-full text-base py-3 px-6 rounded-full font-bold transition-all duration-300 ease-in-out transform hover:scale-105 text-white" style="background-color: var(--primary-color);">สำหรับผู้จัดการ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Leave Section -->
+        <div id="request-leave-section" class="w-full max-w-2xl hidden relative z-10">
+            <div class="glass-panel p-6 sm:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">แบบฟอร์มยื่นใบลา</h2>
+                    <button class="btn-back text-lg font-medium text-gray-700 hover:text-black flex items-center gap-2 p-2 rounded-full hover:bg-white/20 transition-colors">⬅️<span class="hidden sm:inline">กลับ</span></button>
+                </div>
+                <form id="leave-request-form" class="space-y-5">
+                    <div>
+                        <label for="req-employee-id" class="block text-sm font-medium text-gray-800">รหัสพนักงาน</label>
+                        <select id="req-employee-id" required class="glass-input bg-white/30">
+                            <option value="" disabled selected>-- กรุณาเลือกรหัสพนักงาน --</option>
+                        </select>
+                        <p id="selected-employee-name" class="mt-2 text-center font-semibold text-gray-800 h-6"></p>
+                    </div>
+                    <div><label for="req-leave-type" class="block text-sm font-medium text-gray-800">ประเภทการลา</label><select id="req-leave-type" required class="glass-input bg-white/30"></select></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="req-start-date" class="block text-sm font-medium text-gray-800">วันเริ่มลา</label><input type="date" id="req-start-date" required class="glass-input"></div><div><label for="req-end-date" class="block text-sm font-medium text-gray-800">ถึงวันที่</label><input type="date" id="req-end-date" required class="glass-input"></div></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="req-days-taken" class="block text-sm font-medium text-gray-800">จำนวนวัน (รวม)</label><input type="number" id="req-days-taken" min="0" step="0.5" required class="glass-input"></div><div><label for="req-hr-taken" class="block text-sm font-medium text-gray-800">จำนวนชั่วโมง (รวม)</label><input type="number" id="req-hr-taken" min="0" class="glass-input"></div></div>
+                    <button type="submit" id="submit-request-btn" class="w-full text-base py-3 px-6 rounded-full font-bold text-white transition-all duration-300 ease-in-out transform hover:scale-105 flex justify-center items-center" style="background-color: var(--primary-hover);"><span id="submit-text">ส่งใบลา</span></button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Check Leave Section -->
+        <div id="check-leave-section" class="w-full max-w-6xl hidden relative z-10">
+            <div id="check-leave-content" class="w-full">
+                <div id="login-section" class="min-h-[80vh] flex flex-col items-center justify-center w-full relative">
+                    <button class="btn-back text-lg font-medium text-gray-700 hover:text-black flex items-center gap-2 p-2 rounded-full hover:bg-white/20 transition-colors absolute top-0 right-0 m-4">⬅️<span class="hidden sm:inline">กลับ</span></button>
+                    <div class="glass-panel p-6 sm:p-8 w-full max-w-md">
+                        <h2 class="text-center text-2xl font-bold text-gray-900">ตรวจสอบวันลา</h2>
+                        <p class="text-center mt-1 text-sm text-gray-700">กรุณากรอกรหัสพนักงานของคุณ</p>
+                        <form id="login-form" class="mt-8">
+                            <div class="mb-4 text-center">
+                                <label for="employee-id" class="block text-sm font-medium text-gray-800 mb-2">รหัสพนักงาน</label>
+                                <input type="text" id="employee-id" class="glass-input text-center" placeholder="e.g., EMP001">
+                            </div>
+                            <div id="login-error" class="text-red-500 text-sm mb-4 hidden"></div>
+                            <button type="submit" class="w-full text-base py-3 px-6 rounded-full font-bold text-white transition-all duration-300 ease-in-out transform hover:scale-105" style="background-color: var(--primary-hover);">เข้าสู่ระบบ</button>
+                        </form>
+                    </div>
+                </div>
+                <div id="loading-section" class="text-center hidden p-10"><div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4 mx-auto"></div><h2 class="text-xl font-semibold text-gray-700">กำลังดึงข้อมูล...</h2></div>
+                <div id="dashboard-section" class="w-full hidden">
+                    <header class="flex flex-col md:flex-row justify-between md:items-center mb-8 gap-4"><div><h1 class="text-3xl font-bold text-gray-900" id="welcome-message"></h1></div><button id="logout-button" class="w-full md:w-auto text-base py-3 px-6 rounded-full font-bold transition-all duration-300 ease-in-out transform hover:scale-105" style="background-color: rgba(255, 255, 255, 0.2); color: #111827; border: 1px solid rgba(255, 255, 255, 0.3);">ออกจากระบบ</button></header>
+                    <div class="mb-8"><h2 class="text-xl font-bold text-gray-900 mb-4" id="summary-title"></h2><div id="leave-summary-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"></div></div>
+                    <div><h2 class="text-xl font-bold text-gray-900 mb-4" id="history-title"></h2><div class="glass-panel overflow-hidden"><div class="overflow-x-auto"><table class="min-w-full"><thead class="border-b border-white/20"><tr><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ประเภท</th><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">เริ่มลา</th><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">สิ้นสุด</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">วัน</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">สถานะ</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">หลักฐาน</th></tr></thead><tbody id="leave-history-body" class="divide-y divide-white/20"></tbody></table></div></div></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Approval Section -->
+        <div id="approval-section" class="w-full max-w-7xl hidden relative z-10">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-900">รายการรออนุมัติ</h1>
+                <button class="btn-back text-lg font-medium text-gray-700 hover:text-black flex items-center gap-2 p-2 rounded-full hover:bg-white/20 transition-colors">⬅️<span class="hidden sm:inline">กลับ</span></button>
+            </div>
+            <div class="glass-panel overflow-hidden">
+                <div class="overflow-x-auto"><table class="min-w-full"><thead class="border-b border-white/20"><tr><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">พนักงาน</th><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ประเภท</th><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">วันที่ลา</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">วัน</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">หลักฐาน</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">การกระทำ</th></tr></thead><tbody id="approval-list-body" class="divide-y divide-white/20"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- Manager Login Modal -->
+        <div id="manager-login-modal" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+            <div class="glass-panel p-8 w-full max-w-sm">
+                <h2 class="text-2xl font-bold text-center text-gray-900 mb-4">สำหรับผู้จัดการ</h2>
+                <p class="text-center text-gray-700 mb-6">กรุณากรอกรหัสผ่านเพื่อเข้าถึง</p>
+                <form id="manager-login-form">
+                    <div class="text-center">
+                         <label for="manager-password" class="block text-sm font-medium text-gray-800 mb-2">รหัสผ่าน</label>
+                        <input type="password" id="manager-password" class="glass-input text-center" placeholder="••••••••">
+                    </div>
+                    <p id="manager-login-error" class="text-red-500 text-sm text-center mt-2 hidden"></p>
+                    <div class="flex gap-4 mt-6">
+                        <button type="button" id="btn-close-modal" class="w-1/2 text-base py-3 px-6 rounded-full font-bold transition-all duration-300 ease-in-out transform hover:scale-105" style="background-color: rgba(255, 255, 255, 0.2); color: #111827; border: 1px solid rgba(255, 255, 255, 0.3);">ยกเลิก</button>
+                        <button type="submit" id="manager-login-submit" class="w-1/2 text-base py-3 px-6 rounded-full font-bold text-white transition-all duration-300 ease-in-out transform hover:scale-105 flex justify-center items-center" style="background-color: var(--primary-hover);">
+                            <span class="btn-text">เข้าสู่ระบบ</span>
+                            <div class="loader h-5 w-5 hidden"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxHWcroZP6eHZt8mjpM1TfBdEuoUpjWUr9lGiJcrYkqS0LoeYtk1wf77iUNPtW3wcza/exec';
+        const currentYear = new Date().getFullYear();
+        let appData = null; 
+        let currentEmployee = null;
+        let recordIdToUpdate = null; 
+
+        // --- DOM Elements ---
+        const evidenceUploadInput = document.getElementById('evidence-upload-input');
+        const mainMenuSection = document.getElementById('main-menu-section');
+        const requestLeaveSection = document.getElementById('request-leave-section');
+        const checkLeaveSection = document.getElementById('check-leave-section');
+        const approvalSection = document.getElementById('approval-section');
+        const btnGotoRequest = document.getElementById('btn-goto-request');
+        const btnGotoCheck = document.getElementById('btn-goto-check');
+        const btnGotoApproval = document.getElementById('btn-goto-approval');
+        const btnsBack = document.querySelectorAll('.btn-back');
+        const leaveRequestForm = document.getElementById('leave-request-form');
+        const reqEmployeeSelect = document.getElementById('req-employee-id');
+        const reqLeaveTypeSelect = document.getElementById('req-leave-type');
+        const selectedEmployeeName = document.getElementById('selected-employee-name');
+        const globalLoader = document.getElementById('global-loader');
+        const globalLoaderText = document.getElementById('global-loader-text');
+        const toastNotification = document.getElementById('toast-notification');
+        const toastMessage = document.getElementById('toast-message');
+        const loginSection = document.getElementById('login-section');
+        const loadingSection = document.getElementById('loading-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+        const loginForm = document.getElementById('login-form');
+        const employeeIdInput = document.getElementById('employee-id');
+        const loginError = document.getElementById('login-error');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const logoutButton = document.getElementById('logout-button');
+        const summaryTitle = document.getElementById('summary-title');
+        const historyTitle = document.getElementById('history-title');
+        const leaveSummaryContainer = document.getElementById('leave-summary-container');
+        const leaveHistoryBody = document.getElementById('leave-history-body');
+        const approvalListBody = document.getElementById('approval-list-body');
+        const managerLoginModal = document.getElementById('manager-login-modal');
+        const managerLoginForm = document.getElementById('manager-login-form');
+        const managerPasswordInput = document.getElementById('manager-password');
+        const managerLoginError = document.getElementById('manager-login-error');
+        const btnCloseModal = document.getElementById('btn-close-modal');
+        const emojiContainer = document.getElementById('emoji-container');
+        
+        // --- CORE FUNCTIONS ---
+        
+        function displayInitialLoadError(errorMessage) {
+            const initialLoadErrorPanel = document.getElementById('initial-load-error');
+            const errorDetails = document.getElementById('error-details');
+            const menuPanel = document.getElementById('main-menu-panel');
+
+            showSection(mainMenuSection); 
+            
+            if (menuPanel) menuPanel.classList.add('hidden');
+            if (initialLoadErrorPanel && errorDetails) {
+                errorDetails.textContent = errorMessage;
+                initialLoadErrorPanel.classList.remove('hidden');
+            }
+        }
+
+        async function fetchDataFromGoogleSheets() {
+            if (appData) return appData;
+            
+            showGlobalLoader('กำลังโหลดข้อมูล...');
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+                const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                document.getElementById('initial-load-error').classList.add('hidden');
+                document.getElementById('main-menu-panel').classList.remove('hidden');
+
+                appData = data;
+                return data;
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+                displayInitialLoadError(error.message);
+                throw error; 
+            } finally {
+                hideGlobalLoader();
+            }
+        }
+
+        // --- UI HELPER FUNCTIONS ---
+        function createFloatingEmojis() {
+            if (!emojiContainer) return;
+            emojiContainer.innerHTML = '';
+            const emojis = ['📄', '📅', '✅', '📋', '📁', '📈'];
+            const count = 20;
+            for (let i = 0; i < count; i++) {
+                const emoji = document.createElement('span');
+                emoji.classList.add('floating-emoji');
+                emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                emoji.style.left = `${Math.random() * 100}vw`;
+                emoji.style.fontSize = `${Math.random() * 1.5 + 1}rem`;
+                emoji.style.animationDuration = `${Math.random() * 10 + 15}s`;
+                emoji.style.animationDelay = `${Math.random() * 15}s`;
+                emojiContainer.appendChild(emoji);
+            }
+        }
+        function showGlobalLoader(text) {
+            globalLoaderText.textContent = text;
+            globalLoader.classList.remove('hidden');
+        }
+        function hideGlobalLoader() {
+            globalLoader.classList.add('hidden');
+        }
+        function showToast(message, type = 'success') {
+            toastMessage.textContent = message;
+            toastNotification.className = `fixed top-5 right-5 max-w-sm p-4 rounded-xl shadow-lg text-white z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            toastNotification.classList.remove('hidden');
+            const timeout = type === 'error' ? 8000 : 4000;
+            setTimeout(() => {
+                toastNotification.classList.add('hidden');
+            }, timeout);
+        }
+        function showSection(section) {
+            mainMenuSection.classList.add('hidden');
+            requestLeaveSection.classList.add('hidden');
+            checkLeaveSection.classList.add('hidden');
+            approvalSection.classList.add('hidden');
+            section.classList.remove('hidden');
+        }
+        function convertGoogleDriveUrlToDirectLink(url) {
+            if (!url || typeof url !== 'string') return null;
+            const regex = /\/d\/([a-zA-Z0-9_-]+)/;
+            const match = url.match(regex);
+            if (match && match[1]) {
+                return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+            }
+            return null;
+        }
+
+        // --- EVENT LISTENERS & PAGE SETUP ---
+        btnGotoRequest.addEventListener('click', async () => {
+            try {
+                await fetchDataFromGoogleSheets();
+                populateRequestFormDropdowns();
+                showSection(requestLeaveSection);
+            } catch (error) { /* Error handled */ }
+        });
+        btnGotoCheck.addEventListener('click', async () => {
+             try {
+                await fetchDataFromGoogleSheets();
+                showSection(checkLeaveSection);
+            } catch (error) { /* Error handled */ }
+        });
+        btnGotoApproval.addEventListener('click', async () => {
+             try {
+                await fetchDataFromGoogleSheets();
+                managerLoginModal.classList.remove('hidden');
+            } catch (error) { /* Error handled */ }
+        });
+        btnsBack.forEach(btn => btn.addEventListener('click', () => {
+            if(dashboardSection) dashboardSection.classList.add('hidden');
+            if(loginSection) loginSection.classList.remove('hidden');
+            showSection(mainMenuSection);
+        }));
+        btnCloseModal.addEventListener('click', () => {
+            managerLoginModal.classList.add('hidden');
+            managerLoginError.classList.add('hidden');
+            managerPasswordInput.value = '';
+        });
+
+        // --- LEAVE REQUEST SECTION ---
+        function populateRequestFormDropdowns() {
+            reqEmployeeSelect.innerHTML = '<option value="" disabled selected>-- กรุณาเลือกรหัสพนักงาน --</option>';
+            appData.employees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.employee_id;
+                option.textContent = `${emp.employee_id} - ${emp.first_name} ${emp.last_name || ''}`;
+                reqEmployeeSelect.appendChild(option);
+            });
+            reqLeaveTypeSelect.innerHTML = '';
+            appData.leaveTypes.forEach(lt => {
+                const option = document.createElement('option');
+                option.value = lt.leave_type_id;
+                option.textContent = lt.type_name_th;
+                reqLeaveTypeSelect.appendChild(option);
+            });
+        }
+        reqEmployeeSelect.addEventListener('change', (e) => {
+            const selectedId = e.target.value;
+            const employee = appData.employees.find(emp => emp.employee_id === selectedId);
+            selectedEmployeeName.textContent = employee ? `ชื่อ: ${employee.first_name} ${employee.last_name || ''}` : '';
+        });
+        leaveRequestForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showGlobalLoader('กำลังส่งใบลา...');
+            const formData = {
+                action: 'CREATE_LEAVE',
+                employee_id: document.getElementById('req-employee-id').value,
+                leave_type_id: document.getElementById('req-leave-type').value,
+                start_date: document.getElementById('req-start-date').value,
+                end_date: document.getElementById('req-end-date').value,
+                days_taken: document.getElementById('req-days-taken').value,
+                hr_taken: document.getElementById('req-hr-taken').value || 0,
+            };
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    body: JSON.stringify(formData),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                });
+                if (response.ok) {
+                    showToast('ส่งใบลาสำเร็จ!', 'success');
+                    leaveRequestForm.reset();
+                    selectedEmployeeName.textContent = '';
+                    appData = null;
+                    showSection(mainMenuSection);
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Server responded with an error');
+                }
+            } catch (err) {
+                showToast(`ส่งใบลาไม่สำเร็จ: ${err.message}`, 'error');
+            } finally {
+                hideGlobalLoader();
+            }
+        });
+
+        // --- CHECK LEAVE (LOGIN & DASHBOARD) SECTION ---
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const employeeId = employeeIdInput.value.trim().toUpperCase();
+            if (!employeeId) { 
+                loginError.textContent = 'กรุณากรอกรหัสพนักงาน'; 
+                loginError.classList.remove('hidden'); 
+                return; 
+            }
+            loginSection.classList.add('hidden');
+            loadingSection.classList.remove('hidden');
+            loginError.classList.add('hidden');
+            
+            const foundEmployee = appData.employees.find(emp => emp.employee_id === employeeId);
+            if (foundEmployee) {
+                currentEmployee = foundEmployee;
+                displayDashboard();
+                loadingSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+            } else { 
+                loginError.textContent = `ไม่พบรหัสพนักงาน '${employeeId}'`;
+                loginError.classList.remove('hidden');
+                loadingSection.classList.add('hidden');
+                loginSection.classList.remove('hidden');
+            }
+        });
+        
+        logoutButton.addEventListener('click', () => {
+            currentEmployee = null;
+            dashboardSection.classList.add('hidden');
+            loginSection.classList.remove('hidden');
+            employeeIdInput.value = '';
+        });
+
+        function displayDashboard() {
+            if (!currentEmployee) return;
+            welcomeMessage.textContent = `สวัสดี, ${currentEmployee.first_name}`;
+            summaryTitle.textContent = `สรุปวันลาคงเหลือปี ${currentYear}`;
+            historyTitle.textContent = `ประวัติการลา`;
+            displayLeaveBalances(currentEmployee.employee_id);
+            displayLeaveHistory(currentEmployee.employee_id);
+        }
+
+        // ✨ MODIFIED: Calculation for leave balances now includes hours.
+        function displayLeaveBalances(employeeId) {
+            leaveSummaryContainer.innerHTML = '';
+            const leaveTypesMap = new Map(appData.leaveTypes.map(lt => [lt.leave_type_id, lt.type_name_th]));
+            const employeeEntitlements = appData.entitlements.filter(e => e.employee_id === employeeId && e.year == currentYear);
+            const employeeApprovedLeaves = appData.records.filter(r => r.employee_id === employeeId && r.status === 'Approved' && new Date(r.start_date).getFullYear() == currentYear);
+            if (employeeEntitlements.length === 0) {
+                 leaveSummaryContainer.innerHTML = `<p class="col-span-full text-center text-gray-600">ไม่พบข้อมูลสิทธิ์วันลาสำหรับปีนี้</p>`;
+                 return;
+            }
+            employeeEntitlements.forEach(entitlement => {
+                const usedDays = employeeApprovedLeaves
+                    .filter(r => r.leave_type_id === entitlement.leave_type_id)
+                    .reduce((sum, record) => {
+                        const daysFromHours = (Number(record.hr_taken) || 0) / 8;
+                        return sum + (Number(record.days_taken) || 0) + daysFromHours;
+                    }, 0);
+
+                const totalDays = Number(entitlement.total_days);
+                const remainingDays = totalDays - usedDays;
+                
+                leaveSummaryContainer.innerHTML += `<div class="glass-panel p-6">
+                        <h3 class="font-bold text-gray-800">${leaveTypesMap.get(entitlement.leave_type_id) || entitlement.leave_type_id}</h3>
+                        <div class="flex items-baseline gap-2 mt-2">
+                            <p class="text-4xl font-bold text-black">${remainingDays.toFixed(2)}</p>
+                            <p class="text-lg font-medium text-gray-700">/ ${totalDays} วัน</p>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">ใช้ไปแล้ว ${usedDays.toFixed(2)} วัน</p>
+                    </div>`;
+            });
+        }
+        
+        function displayLeaveHistory(employeeId) {
+            leaveHistoryBody.innerHTML = '';
+            const leaveTypesMap = new Map(appData.leaveTypes.map(lt => [lt.leave_type_id, lt.type_name_th]));
+            const employeeRecords = appData.records
+                .filter(r => r.employee_id === employeeId && new Date(r.start_date).getFullYear() == currentYear)
+                .sort((a, b) => new Date(b.start_date) - new Date(a.start_date));
+
+            if (employeeRecords.length === 0) {
+                leaveHistoryBody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-gray-500">ไม่พบประวัติการลาในปีนี้</td></tr>`;
+                return;
+            }
+
+            employeeRecords.forEach(record => {
+                const statusColors = {'Approved': 'bg-green-100 text-green-800', 'Pending': 'bg-yellow-100 text-yellow-800', 'Rejected': 'bg-red-100 text-red-800'};
+                const statusText = { 'Approved': 'อนุมัติแล้ว', 'Pending': 'รออนุมัติ', 'Rejected': 'ปฏิเสธ' };
+                const startDate = new Date(record.start_date).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
+                const endDate = new Date(record.end_date).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
+                
+                const directImageUrl = convertGoogleDriveUrlToDirectLink(record.url_image);
+                const evidenceCellHTML = directImageUrl 
+                    ? `<a href="${directImageUrl}" target="_blank" rel="noopener noreferrer">
+                           <img src="${directImageUrl}" 
+                                class="h-12 w-12 rounded-lg object-cover mx-auto hover:scale-110 transition-transform" 
+                                alt="หลักฐาน" 
+                                onerror="this.parentElement.innerHTML = '<span class=\\'text-xs text-gray-500\\'>ดูหลักฐาน</span>'">
+                       </a>`
+                    : `<button class="btn-upload-evidence text-2xl hover:opacity-75 transition-opacity" data-record-id="${record.record_id}" title="อัปโหลดหลักฐาน">📤</button>`;
+
+                leaveHistoryBody.innerHTML += `<tr class="hover:bg-white/10">
+                    <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${leaveTypesMap.get(record.leave_type_id)}</div></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${startDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${endDate}</td>
+                    <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">${record.days_taken}</td>
+                    <td class="px-6 py-4 text-center"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[record.status] || ''}">${statusText[record.status] || record.status}</span></td>
+                    <td class="px-6 py-4 text-center text-sm evidence-cell" style="vertical-align: middle;">${evidenceCellHTML}</td>
+                </tr>`;
+            });
+        }
+
+        leaveHistoryBody.addEventListener('click', (e) => {
+            const uploadBtn = e.target.closest('.btn-upload-evidence');
+            if (uploadBtn) {
+                recordIdToUpdate = uploadBtn.dataset.recordId;
+                evidenceUploadInput.click();
+            }
+        });
+
+        evidenceUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && recordIdToUpdate) {
+                uploadEvidenceFile(file, recordIdToUpdate);
+            }
+            e.target.value = '';
+        });
+
+        async function uploadEvidenceFile(file, recordId) {
+            const evidenceCell = leaveHistoryBody.querySelector(`.btn-upload-evidence[data-record-id="${recordId}"]`).parentElement;
+            if (evidenceCell) {
+                evidenceCell.innerHTML = `<div class="loader h-6 w-6 mx-auto"></div>`;
+            }
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const fileData = reader.result;
+                const payload = {
+                    action: 'UPLOAD_EVIDENCE',
+                    record_id: recordId,
+                    fileData: fileData,
+                    fileName: file.name,
+                    mimeType: file.type
+                };
+                try {
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        redirect: 'follow',
+                        body: JSON.stringify(payload),
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast('อัปโหลดหลักฐานสำเร็จ', 'success');
+                        appData = null;
+                        await fetchDataFromGoogleSheets();
+                        displayDashboard();
+                    } else {
+                        throw new Error(result.message || 'การอัปโหลดล้มเหลว');
+                    }
+                } catch (err) {
+                    showToast(`เกิดข้อผิดพลาด: ${err.message}`, 'error');
+                    displayDashboard();
+                } finally {
+                    recordIdToUpdate = null;
+                }
+            };
+            reader.onerror = () => {
+                 showToast('ไม่สามารถอ่านไฟล์ได้', 'error');
+                 displayDashboard();
+            };
+        }
+
+        // --- MANAGER APPROVAL SECTION ---
+        managerLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('manager-login-submit');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const loader = submitBtn.querySelector('.loader');
+            btnText.classList.add('hidden');
+            loader.classList.remove('hidden');
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                if (managerPasswordInput.value === appData.managerPassword) {
+                    managerLoginModal.classList.add('hidden');
+                    managerPasswordInput.value = '';
+                    managerLoginError.classList.add('hidden');
+                    showSection(approvalSection);
+                    displayApprovalList();
+                } else {
+                    managerLoginError.textContent = 'รหัสผ่านไม่ถูกต้อง';
+                    managerLoginError.classList.remove('hidden');
+                }
+                btnText.classList.remove('hidden');
+                loader.classList.add('hidden');
+                submitBtn.disabled = false;
+            }, 500);
+        });
+
+        function displayApprovalList() {
+            approvalListBody.innerHTML = '<tr><td colspan="6" class="text-center py-10"><div class="loader mx-auto"></div><p>กำลังโหลด...</p></td></tr>';
+            const pendingRecords = appData.records.filter(r => r.status === 'Pending').sort((a,b) => new Date(a.start_date) - new Date(b.start_date));
+            const employeesMap = new Map(appData.employees.map(e => [e.employee_id, `${e.first_name} ${e.last_name}`]));
+            const leaveTypesMap = new Map(appData.leaveTypes.map(lt => [lt.leave_type_id, lt.type_name_th]));
+            
+            if (pendingRecords.length === 0) {
+                approvalListBody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-gray-500">ไม่มีรายการรออนุมัติ</td></tr>`;
+                return;
+            }
+            
+            approvalListBody.innerHTML = '';
+            pendingRecords.forEach(record => {
+                const directImageUrl = convertGoogleDriveUrlToDirectLink(record.url_image);
+                const imageCellHTML = directImageUrl 
+                    ? `<a href="${directImageUrl}" target="_blank" rel="noopener noreferrer">
+                           <img src="${directImageUrl}" 
+                                class="h-12 w-12 rounded-lg object-cover mx-auto hover:scale-110 transition-transform" 
+                                alt="หลักฐาน" 
+                                onerror="this.parentElement.innerHTML = '<span class=\\'text-xs text-gray-500\\'>ดูหลักฐาน</span>'">
+                       </a>`
+                    : `-`;
+
+                const rowHTML = `<tr id="approval-row-${record.record_id}" class="hover:bg-white/10">
+                    <td class="px-4 py-4 whitespace-nowrap"><div class="font-medium text-gray-900">${employeesMap.get(record.employee_id) || record.employee_id}</div></td>
+                    <td class="px-4 py-4 whitespace-nowrap text-gray-700">${leaveTypesMap.get(record.leave_type_id)}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">${new Date(record.start_date).toLocaleDateString('th-TH')} - ${new Date(record.end_date).toLocaleDateString('th-TH')}</td>
+                    <td class="px-4 py-4 text-center text-gray-900 font-medium">${record.days_taken}</td>
+                    <td class="px-4 py-4 text-center" style="vertical-align: middle;">${imageCellHTML}</td>
+                    <td class="px-4 py-4 text-center action-cell">
+                        <div class="flex justify-center items-center gap-2">
+                            <button class="px-3 py-1 text-xs font-bold text-white bg-green-500 rounded-full hover:bg-green-600 transition-all transform hover:scale-105" data-record-id="${record.record_id}" data-action="approve">อนุมัติ</button>
+                            <button class="px-3 py-1 text-xs font-bold text-white bg-red-500 rounded-full hover:bg-red-600 transition-all transform hover:scale-105" data-record-id="${record.record_id}" data-action="reject">ปฏิเสธ</button>
+                        </div>
+                    </td>
+                </tr>`;
+                approvalListBody.innerHTML += rowHTML;
+            });
+        }
+        
+        approvalListBody.addEventListener('click', async (e) => {
+            const button = e.target.closest('button');
+            if(!button) return;
+            const recordId = button.dataset.recordId;
+            const action = button.dataset.action;
+            const newStatus = action === 'approve' ? 'Approved' : 'Rejected';
+            const actionCell = document.querySelector(`#approval-row-${recordId} .action-cell`);
+            actionCell.innerHTML = `<div class="loader h-6 w-6 mx-auto"></div>`;
+            try {
+                const payload = { action: 'UPDATE_STATUS', record_id: recordId, newStatus: newStatus };
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Server responded with an error');
+                }
+                showToast(`อัปเดตสถานะสำเร็จ`, 'success');
+                appData = null;
+                await fetchDataFromGoogleSheets();
+                displayApprovalList();
+            } catch (err) {
+                 showToast(`เกิดข้อผิดพลาด: ${err.message}`, 'error');
+                 displayApprovalList();
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingEmojis();
+            fetchDataFromGoogleSheets().catch(err => {
+                console.log("Initial data load failed. User has been notified.");
+            });
+        });
+    </script>
+</body>
+</html>
