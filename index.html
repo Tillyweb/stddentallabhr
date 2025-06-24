@@ -63,19 +63,19 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
         }
 
-        .glass-input {
+        .glass-input, .glass-textarea, .glass-select {
             @apply mt-1 block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2;
             background: rgba(255, 255, 255, 0.2);
             border-color: rgba(255, 255, 255, 0.3);
             color: #1f2937;
             transition: all 0.2s ease-in-out;
         }
-        .glass-input:focus {
+        .glass-input:focus, .glass-textarea:focus, .glass-select:focus {
             background: rgba(255, 255, 255, 0.5);
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
         }
-        .glass-input::placeholder {
+        .glass-input::placeholder, .glass-textarea::placeholder {
             color: #6b7280;
         }
 
@@ -86,9 +86,10 @@
 </head>
 <body class="antialiased">
 
-    <!-- Hidden file input for evidence upload -->
+    <!-- Hidden file inputs -->
     <input type="file" id="evidence-upload-input" class="hidden" accept="image/*">
-
+    <input type="file" id="employee-photo-upload-input" class="hidden" accept="image/*">
+    
     <div id="emoji-container" class="absolute top-0 left-0 w-full h-full overflow-hidden"></div>
 
     <!-- Global Loader -->
@@ -145,61 +146,92 @@
         <!-- Request Leave Section -->
         <div id="request-leave-section" class="w-full max-w-2xl hidden relative z-10">
             <div class="glass-panel p-6 sm:p-8">
-                <div class="flex justify-between items-center mb-6">
+                <div class="text-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-900">แบบฟอร์มยื่นใบลา</h2>
-                    <button class="btn-back text-lg font-medium text-gray-700 hover:text-black flex items-center gap-2 p-2 rounded-full hover:bg-white/20 transition-colors">⬅️<span class="hidden sm:inline">กลับ</span></button>
                 </div>
                 <form id="leave-request-form" class="space-y-5">
                     <div>
                         <label for="req-employee-id" class="block text-sm font-medium text-gray-800">รหัสพนักงาน</label>
-                        <select id="req-employee-id" required class="glass-input bg-white/30">
+                        <select id="req-employee-id" required class="glass-select bg-white/30">
                             <option value="" disabled selected>-- กรุณาเลือกรหัสพนักงาน --</option>
                         </select>
                         <p id="selected-employee-name" class="mt-2 text-center font-semibold text-gray-800 h-6"></p>
                     </div>
-                    <div><label for="req-leave-type" class="block text-sm font-medium text-gray-800">ประเภทการลา</label><select id="req-leave-type" required class="glass-input bg-white/30"></select></div>
+                    <div><label for="req-leave-type" class="block text-sm font-medium text-gray-800">ประเภทการลา</label><select id="req-leave-type" required class="glass-select bg-white/30"></select></div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="req-start-date" class="block text-sm font-medium text-gray-800">วันเริ่มลา</label><input type="date" id="req-start-date" required class="glass-input"></div><div><label for="req-end-date" class="block text-sm font-medium text-gray-800">ถึงวันที่</label><input type="date" id="req-end-date" required class="glass-input"></div></div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="req-days-taken" class="block text-sm font-medium text-gray-800">จำนวนวัน (รวม)</label><input type="number" id="req-days-taken" min="0" step="0.5" required class="glass-input"></div><div><label for="req-hr-taken" class="block text-sm font-medium text-gray-800">จำนวนชั่วโมง (รวม)</label><input type="number" id="req-hr-taken" min="0" class="glass-input"></div></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label for="req-days-taken" class="block text-sm font-medium text-gray-800">จำนวนวัน (รวม)</label><input type="number" id="req-days-taken" min="0" step="0.5" required class="glass-input"></div><div><label for="req-hr-taken" class="block text-sm font-medium text-gray-800">จำนวนชั่วโมง (ถ้ามี)</label><input type="number" id="req-hr-taken" min="0" class="glass-input"></div></div>
+                    <div>
+                        <label for="req-reason" class="block text-sm font-medium text-gray-800">เหตุผลการลา (ถ้ามี)</label>
+                        <textarea id="req-reason" class="glass-textarea" rows="3" placeholder="ระบุเหตุผลการลาของคุณที่นี่..."></textarea>
+                    </div>
                     <button type="submit" id="submit-request-btn" class="w-full text-base py-3 px-6 rounded-full font-bold text-white transition-all duration-300 ease-in-out transform hover:scale-105 flex justify-center items-center" style="background-color: var(--primary-hover);"><span id="submit-text">ส่งใบลา</span></button>
                 </form>
+                <div class="mt-8 text-center">
+                    <button class="btn-back w-full sm:w-auto text-base py-3 px-8 rounded-full font-bold transition-all duration-300 ease-in-out transform hover:scale-105" style="background-color: rgba(255, 255, 255, 0.2); color: #111827; border: 1px solid rgba(255, 255, 255, 0.3);">กลับไปหน้าหลัก</button>
+                </div>
             </div>
         </div>
 
         <!-- Check Leave Section -->
         <div id="check-leave-section" class="w-full max-w-6xl hidden relative z-10">
             <div id="check-leave-content" class="w-full">
+                <!-- ✨ MODIFIED: Login Form -->
                 <div id="login-section" class="min-h-[80vh] flex flex-col items-center justify-center w-full relative">
-                    <button class="btn-back text-lg font-medium text-gray-700 hover:text-black flex items-center gap-2 p-2 rounded-full hover:bg-white/20 transition-colors absolute top-0 right-0 m-4">⬅️<span class="hidden sm:inline">กลับ</span></button>
                     <div class="glass-panel p-6 sm:p-8 w-full max-w-md">
                         <h2 class="text-center text-2xl font-bold text-gray-900">ตรวจสอบวันลา</h2>
-                        <p class="text-center mt-1 text-sm text-gray-700">กรุณากรอกรหัสพนักงานของคุณ</p>
-                        <form id="login-form" class="mt-8">
-                            <div class="mb-4 text-center">
-                                <label for="employee-id" class="block text-sm font-medium text-gray-800 mb-2">รหัสพนักงาน</label>
-                                <input type="text" id="employee-id" class="glass-input text-center" placeholder="e.g., EMP001">
+                        <p class="text-center mt-1 text-sm text-gray-700">กรุณาเลือกชื่อและกรอกรหัสผ่าน</p>
+                        <form id="login-form" class="mt-8 space-y-4">
+                            <div>
+                                <label for="login-employee-id" class="block text-sm font-medium text-gray-800 mb-1">รหัสพนักงาน</label>
+                                <select id="login-employee-id" required class="glass-select">
+                                    <option value="" disabled selected>-- กรุณาเลือกพนักงาน --</option>
+                                </select>
                             </div>
-                            <div id="login-error" class="text-red-500 text-sm mb-4 hidden"></div>
+                             <div>
+                                <label for="login-password" class="block text-sm font-medium text-gray-800 mb-1">รหัสผ่าน</label>
+                                <input type="password" id="login-password" class="glass-input text-center" placeholder="••••••••" required>
+                            </div>
+                            <div id="login-error" class="text-red-500 text-sm hidden pt-1 text-center"></div>
                             <button type="submit" class="w-full text-base py-3 px-6 rounded-full font-bold text-white transition-all duration-300 ease-in-out transform hover:scale-105" style="background-color: var(--primary-hover);">เข้าสู่ระบบ</button>
                         </form>
+                        <div class="mt-8 text-center">
+                            <button class="btn-back w-full sm:w-auto text-base py-3 px-8 rounded-full font-bold transition-all duration-300 ease-in-out transform hover:scale-105" style="background-color: rgba(255, 255, 255, 0.2); color: #111827; border: 1px solid rgba(255, 255, 255, 0.3);">กลับไปหน้าหลัก</button>
+                        </div>
                     </div>
                 </div>
                 <div id="loading-section" class="text-center hidden p-10"><div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4 mx-auto"></div><h2 class="text-xl font-semibold text-gray-700">กำลังดึงข้อมูล...</h2></div>
                 <div id="dashboard-section" class="w-full hidden">
-                    <header class="flex flex-col md:flex-row justify-between md:items-center mb-8 gap-4"><div><h1 class="text-3xl font-bold text-gray-900" id="welcome-message"></h1></div><button id="logout-button" class="w-full md:w-auto text-base py-3 px-6 rounded-full font-bold transition-all duration-300 ease-in-out transform hover:scale-105" style="background-color: rgba(255, 255, 255, 0.2); color: #111827; border: 1px solid rgba(255, 255, 255, 0.3);">ออกจากระบบ</button></header>
+                     <header class="flex flex-col items-center mb-8 gap-4">
+                        <a id="employee-photo-link" href="#" target="_blank" rel="noopener noreferrer" class="relative">
+                            <img id="employee-photo-display" src="" alt="รูปโปรไฟล์" class="h-28 w-28 rounded-full object-cover bg-white/50 p-1 shadow-lg">
+                             <div id="employee-photo-loader" class="absolute inset-0 rounded-full bg-black/60 items-center justify-center hidden">
+                                <div class="loader h-8 w-8 border-4 border-t-4 border-gray-200"></div>
+                            </div>
+                        </a>
+                        <div class="text-center">
+                            <div class="flex items-center gap-2 justify-center">
+                                 <h1 class="text-3xl font-bold text-gray-900" id="welcome-message"></h1>
+                                 <button id="btn-change-photo" title="อัปโหลด/เปลี่ยนรูปโปรไฟล์" class="text-2xl hover:opacity-75 transition-opacity">📸</button>
+                            </div>
+                            <button id="logout-button" class="mt-2 text-sm text-gray-700 hover:text-black">ออกจากระบบ</button>
+                        </div>
+                    </header>
                     <div class="mb-8"><h2 class="text-xl font-bold text-gray-900 mb-4" id="summary-title"></h2><div id="leave-summary-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"></div></div>
-                    <div><h2 class="text-xl font-bold text-gray-900 mb-4" id="history-title"></h2><div class="glass-panel overflow-hidden"><div class="overflow-x-auto"><table class="min-w-full"><thead class="border-b border-white/20"><tr><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ประเภท</th><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">เริ่มลา</th><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">สิ้นสุด</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">วัน</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">สถานะ</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">หลักฐาน</th></tr></thead><tbody id="leave-history-body" class="divide-y divide-white/20"></tbody></table></div></div></div>
+                    <div><h2 class="text-xl font-bold text-gray-900 mb-4" id="history-title"></h2><div class="glass-panel overflow-hidden"><div class="overflow-x-auto"><table class="min-w-full"><thead class="border-b border-white/20"><tr><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ประเภท</th><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">เริ่มลา</th><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">สิ้นสุด</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">วัน</th><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">เหตุผล</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">สถานะ</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">หลักฐาน</th></tr></thead><tbody id="leave-history-body" class="divide-y divide-white/20"></tbody></table></div></div></div>
                 </div>
             </div>
         </div>
         
         <!-- Approval Section -->
         <div id="approval-section" class="w-full max-w-7xl hidden relative z-10">
-            <div class="flex justify-between items-center mb-6">
+            <div class="text-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-900">รายการรออนุมัติ</h1>
-                <button class="btn-back text-lg font-medium text-gray-700 hover:text-black flex items-center gap-2 p-2 rounded-full hover:bg-white/20 transition-colors">⬅️<span class="hidden sm:inline">กลับ</span></button>
             </div>
             <div class="glass-panel overflow-hidden">
-                <div class="overflow-x-auto"><table class="min-w-full"><thead class="border-b border-white/20"><tr><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">พนักงาน</th><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ประเภท</th><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">วันที่ลา</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">วัน</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">หลักฐาน</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">การกระทำ</th></tr></thead><tbody id="approval-list-body" class="divide-y divide-white/20"></tbody></table></div>
+                <div class="overflow-x-auto"><table class="min-w-full"><thead class="border-b border-white/20"><tr><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">พนักงาน</th><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ประเภท</th><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">วันที่ลา</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">วัน</th><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">เหตุผล</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">หลักฐาน</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">การกระทำ</th></tr></thead><tbody id="approval-list-body" class="divide-y divide-white/20"></tbody></table></div>
+            </div>
+            <div class="mt-8 text-center">
+                <button class="btn-back w-full sm:w-auto text-base py-3 px-8 rounded-full font-bold transition-all duration-300 ease-in-out transform hover:scale-105" style="background-color: rgba(255, 255, 255, 0.2); color: #111827; border: 1px solid rgba(255, 255, 255, 0.3);">กลับไปหน้าหลัก</button>
             </div>
         </div>
 
@@ -236,6 +268,11 @@
 
         // --- DOM Elements ---
         const evidenceUploadInput = document.getElementById('evidence-upload-input');
+        const employeePhotoUploadInput = document.getElementById('employee-photo-upload-input');
+        const employeePhotoLink = document.getElementById('employee-photo-link');
+        const employeePhotoDisplay = document.getElementById('employee-photo-display');
+        const employeePhotoLoader = document.getElementById('employee-photo-loader');
+        const btnChangePhoto = document.getElementById('btn-change-photo');
         const mainMenuSection = document.getElementById('main-menu-section');
         const requestLeaveSection = document.getElementById('request-leave-section');
         const checkLeaveSection = document.getElementById('check-leave-section');
@@ -256,7 +293,8 @@
         const loadingSection = document.getElementById('loading-section');
         const dashboardSection = document.getElementById('dashboard-section');
         const loginForm = document.getElementById('login-form');
-        const employeeIdInput = document.getElementById('employee-id');
+        const loginEmployeeIdSelect = document.getElementById('login-employee-id');
+        const loginPasswordInput = document.getElementById('login-password');
         const loginError = document.getElementById('login-error');
         const welcomeMessage = document.getElementById('welcome-message');
         const logoutButton = document.getElementById('logout-button');
@@ -273,14 +311,11 @@
         const emojiContainer = document.getElementById('emoji-container');
         
         // --- CORE FUNCTIONS ---
-        
         function displayInitialLoadError(errorMessage) {
             const initialLoadErrorPanel = document.getElementById('initial-load-error');
             const errorDetails = document.getElementById('error-details');
             const menuPanel = document.getElementById('main-menu-panel');
-
             showSection(mainMenuSection); 
-            
             if (menuPanel) menuPanel.classList.add('hidden');
             if (initialLoadErrorPanel && errorDetails) {
                 errorDetails.textContent = errorMessage;
@@ -290,21 +325,14 @@
 
         async function fetchDataFromGoogleSheets() {
             if (appData) return appData;
-            
             showGlobalLoader('กำลังโหลดข้อมูล...');
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL);
-                if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.statusText}`);
-                }
+                if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
                 const data = await response.json();
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                
+                if (data.error) throw new Error(data.error);
                 document.getElementById('initial-load-error').classList.add('hidden');
                 document.getElementById('main-menu-panel').classList.remove('hidden');
-
                 appData = data;
                 return data;
             } catch (error) {
@@ -356,12 +384,13 @@
             approvalSection.classList.add('hidden');
             section.classList.remove('hidden');
         }
-        function convertGoogleDriveUrlToDirectLink(url) {
+        function getGoogleDriveThumbnail(url) {
             if (!url || typeof url !== 'string') return null;
             const regex = /\/d\/([a-zA-Z0-9_-]+)/;
             const match = url.match(regex);
             if (match && match[1]) {
-                return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                const imageId = match[1];
+                return `https://drive.google.com/thumbnail?id=${imageId}&sz=w256`;
             }
             return null;
         }
@@ -377,6 +406,7 @@
         btnGotoCheck.addEventListener('click', async () => {
              try {
                 await fetchDataFromGoogleSheets();
+                populateLoginDropdown(); // ✨ ADDED: Populate the new login dropdown
                 showSection(checkLeaveSection);
             } catch (error) { /* Error handled */ }
         });
@@ -387,9 +417,12 @@
             } catch (error) { /* Error handled */ }
         });
         btnsBack.forEach(btn => btn.addEventListener('click', () => {
-            if(dashboardSection) dashboardSection.classList.add('hidden');
-            if(loginSection) loginSection.classList.remove('hidden');
-            showSection(mainMenuSection);
+            if(dashboardSection && !dashboardSection.classList.contains('hidden')) {
+                dashboardSection.classList.add('hidden');
+                loginSection.classList.remove('hidden');
+            } else {
+                showSection(mainMenuSection);
+            }
         }));
         btnCloseModal.addEventListener('click', () => {
             managerLoginModal.classList.add('hidden');
@@ -428,8 +461,9 @@
                 leave_type_id: document.getElementById('req-leave-type').value,
                 start_date: document.getElementById('req-start-date').value,
                 end_date: document.getElementById('req-end-date').value,
-                days_taken: document.getElementById('req-days-taken').value,
-                hr_taken: document.getElementById('req-hr-taken').value || 0,
+                days_taken: document.getElementById('req-days-taken').value || '0',
+                hr_taken: document.getElementById('req-hr-taken').value || '0',
+                reason: document.getElementById('req-reason').value || '0'
             };
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
@@ -438,15 +472,15 @@
                     body: JSON.stringify(formData),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 });
-                if (response.ok) {
+                const result = await response.json();
+                if (result.status === 'success') {
                     showToast('ส่งใบลาสำเร็จ!', 'success');
                     leaveRequestForm.reset();
                     selectedEmployeeName.textContent = '';
                     appData = null;
                     showSection(mainMenuSection);
                 } else {
-                    const errorText = await response.text();
-                    throw new Error(errorText || 'Server responded with an error');
+                    throw new Error(result.message || 'Server responded with an error');
                 }
             } catch (err) {
                 showToast(`ส่งใบลาไม่สำเร็จ: ${err.message}`, 'error');
@@ -456,29 +490,51 @@
         });
 
         // --- CHECK LEAVE (LOGIN & DASHBOARD) SECTION ---
+        
+        // ✨ NEW: Function to populate login dropdown
+        function populateLoginDropdown() {
+            loginEmployeeIdSelect.innerHTML = '<option value="" disabled selected>-- กรุณาเลือกพนักงาน --</option>';
+            appData.employees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.employee_id;
+                option.textContent = `${emp.employee_id} - ${emp.first_name} ${emp.last_name || ''}`;
+                loginEmployeeIdSelect.appendChild(option);
+            });
+        }
+
+        // ✨ MODIFIED: Login form logic
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const employeeId = employeeIdInput.value.trim().toUpperCase();
-            if (!employeeId) { 
-                loginError.textContent = 'กรุณากรอกรหัสพนักงาน'; 
-                loginError.classList.remove('hidden'); 
-                return; 
-            }
-            loginSection.classList.add('hidden');
-            loadingSection.classList.remove('hidden');
-            loginError.classList.add('hidden');
+            const employeeId = loginEmployeeIdSelect.value;
+            const password = loginPasswordInput.value;
             
-            const foundEmployee = appData.employees.find(emp => emp.employee_id === employeeId);
-            if (foundEmployee) {
-                currentEmployee = foundEmployee;
-                displayDashboard();
-                loadingSection.classList.add('hidden');
-                dashboardSection.classList.remove('hidden');
-            } else { 
-                loginError.textContent = `ไม่พบรหัสพนักงาน '${employeeId}'`;
+            loginError.classList.add('hidden');
+
+            if (!employeeId) {
+                loginError.textContent = 'กรุณาเลือกพนักงาน';
                 loginError.classList.remove('hidden');
-                loadingSection.classList.add('hidden');
-                loginSection.classList.remove('hidden');
+                return;
+            }
+            if (!password) {
+                loginError.textContent = 'กรุณากรอกรหัสผ่าน';
+                loginError.classList.remove('hidden');
+                return;
+            }
+
+            const foundEmployee = appData.employees.find(emp => emp.employee_id === employeeId);
+
+            if (foundEmployee && String(foundEmployee.Password_id) === password) {
+                currentEmployee = foundEmployee;
+                loginSection.classList.add('hidden');
+                loadingSection.classList.remove('hidden');
+                setTimeout(() => {
+                    displayDashboard();
+                    loadingSection.classList.add('hidden');
+                    dashboardSection.classList.remove('hidden');
+                }, 300);
+            } else { 
+                loginError.textContent = 'รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง';
+                loginError.classList.remove('hidden');
             }
         });
         
@@ -486,7 +542,7 @@
             currentEmployee = null;
             dashboardSection.classList.add('hidden');
             loginSection.classList.remove('hidden');
-            employeeIdInput.value = '';
+            loginForm.reset();
         });
 
         function displayDashboard() {
@@ -494,11 +550,23 @@
             welcomeMessage.textContent = `สวัสดี, ${currentEmployee.first_name}`;
             summaryTitle.textContent = `สรุปวันลาคงเหลือปี ${currentYear}`;
             historyTitle.textContent = `ประวัติการลา`;
+
+            const thumbnailUrl = getGoogleDriveThumbnail(currentEmployee.photo_url);
+            employeePhotoDisplay.src = thumbnailUrl || 'https://placehold.co/112x112/a78bfa/FFFFFF?text=👤';
+            employeePhotoDisplay.onerror = () => { employeePhotoDisplay.src = 'https://placehold.co/112x112/a78bfa/FFFFFF?text=👤'; };
+
+            if (currentEmployee.photo_url) {
+                employeePhotoLink.href = currentEmployee.photo_url;
+                employeePhotoLink.style.pointerEvents = 'auto';
+            } else {
+                employeePhotoLink.href = '#';
+                employeePhotoLink.style.pointerEvents = 'none';
+            }
+            
             displayLeaveBalances(currentEmployee.employee_id);
             displayLeaveHistory(currentEmployee.employee_id);
         }
 
-        // ✨ MODIFIED: Calculation for leave balances now includes hours.
         function displayLeaveBalances(employeeId) {
             leaveSummaryContainer.innerHTML = '';
             const leaveTypesMap = new Map(appData.leaveTypes.map(lt => [lt.leave_type_id, lt.type_name_th]));
@@ -515,17 +583,19 @@
                         const daysFromHours = (Number(record.hr_taken) || 0) / 8;
                         return sum + (Number(record.days_taken) || 0) + daysFromHours;
                     }, 0);
-
                 const totalDays = Number(entitlement.total_days);
                 const remainingDays = totalDays - usedDays;
                 
+                const remainingDaysColor = remainingDays < 0 ? 'text-red-600' : 'text-black';
+                const usedDaysColor = usedDays > totalDays ? 'text-red-500 font-bold' : 'text-gray-600';
+
                 leaveSummaryContainer.innerHTML += `<div class="glass-panel p-6">
                         <h3 class="font-bold text-gray-800">${leaveTypesMap.get(entitlement.leave_type_id) || entitlement.leave_type_id}</h3>
                         <div class="flex items-baseline gap-2 mt-2">
-                            <p class="text-4xl font-bold text-black">${remainingDays.toFixed(2)}</p>
+                            <p class="text-4xl font-bold ${remainingDaysColor}">${remainingDays.toFixed(2)}</p>
                             <p class="text-lg font-medium text-gray-700">/ ${totalDays} วัน</p>
                         </div>
-                        <p class="text-sm text-gray-600 mt-2">ใช้ไปแล้ว ${usedDays.toFixed(2)} วัน</p>
+                        <p class="text-sm ${usedDaysColor} mt-2">ใช้ไปแล้ว ${usedDays.toFixed(2)} วัน</p>
                     </div>`;
             });
         }
@@ -538,7 +608,7 @@
                 .sort((a, b) => new Date(b.start_date) - new Date(a.start_date));
 
             if (employeeRecords.length === 0) {
-                leaveHistoryBody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-gray-500">ไม่พบประวัติการลาในปีนี้</td></tr>`;
+                leaveHistoryBody.innerHTML = `<tr><td colspan="7" class="text-center py-12 text-gray-500">ไม่พบประวัติการลาในปีนี้</td></tr>`;
                 return;
             }
 
@@ -548,27 +618,26 @@
                 const startDate = new Date(record.start_date).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
                 const endDate = new Date(record.end_date).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: 'numeric' });
                 
-                const directImageUrl = convertGoogleDriveUrlToDirectLink(record.url_image);
-                const evidenceCellHTML = directImageUrl 
-                    ? `<a href="${directImageUrl}" target="_blank" rel="noopener noreferrer">
-                           <img src="${directImageUrl}" 
-                                class="h-12 w-12 rounded-lg object-cover mx-auto hover:scale-110 transition-transform" 
-                                alt="หลักฐาน" 
-                                onerror="this.parentElement.innerHTML = '<span class=\\'text-xs text-gray-500\\'>ดูหลักฐาน</span>'">
-                       </a>`
+                const evidenceUrl = record.url_image;
+                const evidenceCellHTML = evidenceUrl 
+                    ? `<a href="${evidenceUrl}" target="_blank" rel="noopener noreferrer" class="text-2xl hover:opacity-75 transition-opacity" title="ดูหลักฐาน">🖼️</a>`
                     : `<button class="btn-upload-evidence text-2xl hover:opacity-75 transition-opacity" data-record-id="${record.record_id}" title="อัปโหลดหลักฐาน">📤</button>`;
+                
+                const reasonText = (record.reason && record.reason !== '0') ? record.reason : '-';
 
                 leaveHistoryBody.innerHTML += `<tr class="hover:bg-white/10">
                     <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${leaveTypesMap.get(record.leave_type_id)}</div></td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${startDate}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${endDate}</td>
                     <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">${record.days_taken}</td>
+                    <td class="px-6 py-4 text-sm text-gray-800 max-w-[150px] truncate" title="${reasonText}">${reasonText}</td>
                     <td class="px-6 py-4 text-center"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[record.status] || ''}">${statusText[record.status] || record.status}</span></td>
                     <td class="px-6 py-4 text-center text-sm evidence-cell" style="vertical-align: middle;">${evidenceCellHTML}</td>
                 </tr>`;
             });
         }
 
+        // --- UPLOAD LOGIC ---
         leaveHistoryBody.addEventListener('click', (e) => {
             const uploadBtn = e.target.closest('.btn-upload-evidence');
             if (uploadBtn) {
@@ -576,6 +645,64 @@
                 evidenceUploadInput.click();
             }
         });
+
+        btnChangePhoto.addEventListener('click', () => {
+            if (currentEmployee) {
+                employeePhotoUploadInput.click();
+            }
+        });
+
+        employeePhotoUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && currentEmployee) {
+                uploadEmployeePhoto(file);
+            }
+            e.target.value = ''; 
+        });
+        
+        async function uploadEmployeePhoto(file) {
+            employeePhotoLoader.style.display = 'flex'; 
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const payload = {
+                    action: 'UPDATE_PHOTO',
+                    employee_id: currentEmployee.employee_id,
+                    fileData: reader.result,
+                    fileName: file.name,
+                    mimeType: file.type
+                };
+                try {
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        redirect: 'follow',
+                        body: JSON.stringify(payload),
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success' && result.url) {
+                        showToast('อัปเดตรูปโปรไฟล์สำเร็จ', 'success');
+                        
+                        const employeeIndex = appData.employees.findIndex(emp => emp.employee_id === currentEmployee.employee_id);
+                        if (employeeIndex !== -1) {
+                            appData.employees[employeeIndex].photo_url = result.url;
+                            currentEmployee.photo_url = result.url;
+                        }
+                        displayDashboard();
+                    } else {
+                        throw new Error(result.message || 'การอัปโหลดล้มเหลว');
+                    }
+                } catch (err) {
+                    showToast(`เกิดข้อผิดพลาด: ${err.message}`, 'error');
+                } finally {
+                    employeePhotoLoader.style.display = 'none'; 
+                }
+            };
+            reader.onerror = () => {
+                showToast('ไม่สามารถอ่านไฟล์ได้', 'error');
+                employeePhotoLoader.style.display = 'none';
+            };
+        }
 
         evidenceUploadInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -590,15 +717,13 @@
             if (evidenceCell) {
                 evidenceCell.innerHTML = `<div class="loader h-6 w-6 mx-auto"></div>`;
             }
-
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = async () => {
-                const fileData = reader.result;
                 const payload = {
                     action: 'UPLOAD_EVIDENCE',
                     record_id: recordId,
-                    fileData: fileData,
+                    fileData: reader.result,
                     fileName: file.name,
                     mimeType: file.type
                 };
@@ -612,9 +737,9 @@
                     const result = await response.json();
                     if (result.status === 'success') {
                         showToast('อัปโหลดหลักฐานสำเร็จ', 'success');
-                        appData = null;
+                        appData = null; 
                         await fetchDataFromGoogleSheets();
-                        displayDashboard();
+                        displayDashboard(); 
                     } else {
                         throw new Error(result.message || 'การอัปโหลดล้มเหลว');
                     }
@@ -659,33 +784,31 @@
         });
 
         function displayApprovalList() {
-            approvalListBody.innerHTML = '<tr><td colspan="6" class="text-center py-10"><div class="loader mx-auto"></div><p>กำลังโหลด...</p></td></tr>';
+            approvalListBody.innerHTML = '<tr><td colspan="7" class="text-center py-10"><div class="loader mx-auto"></div><p>กำลังโหลด...</p></td></tr>';
             const pendingRecords = appData.records.filter(r => r.status === 'Pending').sort((a,b) => new Date(a.start_date) - new Date(b.start_date));
             const employeesMap = new Map(appData.employees.map(e => [e.employee_id, `${e.first_name} ${e.last_name}`]));
             const leaveTypesMap = new Map(appData.leaveTypes.map(lt => [lt.leave_type_id, lt.type_name_th]));
             
             if (pendingRecords.length === 0) {
-                approvalListBody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-gray-500">ไม่มีรายการรออนุมัติ</td></tr>`;
+                approvalListBody.innerHTML = `<tr><td colspan="7" class="text-center py-12 text-gray-500">ไม่มีรายการรออนุมัติ</td></tr>`;
                 return;
             }
             
             approvalListBody.innerHTML = '';
             pendingRecords.forEach(record => {
-                const directImageUrl = convertGoogleDriveUrlToDirectLink(record.url_image);
-                const imageCellHTML = directImageUrl 
-                    ? `<a href="${directImageUrl}" target="_blank" rel="noopener noreferrer">
-                           <img src="${directImageUrl}" 
-                                class="h-12 w-12 rounded-lg object-cover mx-auto hover:scale-110 transition-transform" 
-                                alt="หลักฐาน" 
-                                onerror="this.parentElement.innerHTML = '<span class=\\'text-xs text-gray-500\\'>ดูหลักฐาน</span>'">
-                       </a>`
+                const evidenceUrl = record.url_image;
+                const imageCellHTML = evidenceUrl 
+                    ? `<a href="${evidenceUrl}" target="_blank" rel="noopener noreferrer" class="text-2xl hover:opacity-75 transition-opacity" title="ดูหลักฐาน">🖼️</a>`
                     : `-`;
+
+                const reasonText = (record.reason && record.reason !== '0') ? record.reason : '-';
 
                 const rowHTML = `<tr id="approval-row-${record.record_id}" class="hover:bg-white/10">
                     <td class="px-4 py-4 whitespace-nowrap"><div class="font-medium text-gray-900">${employeesMap.get(record.employee_id) || record.employee_id}</div></td>
                     <td class="px-4 py-4 whitespace-nowrap text-gray-700">${leaveTypesMap.get(record.leave_type_id)}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">${new Date(record.start_date).toLocaleDateString('th-TH')} - ${new Date(record.end_date).toLocaleDateString('th-TH')}</td>
                     <td class="px-4 py-4 text-center text-gray-900 font-medium">${record.days_taken}</td>
+                    <td class="px-4 py-4 text-sm text-gray-800 max-w-[200px] truncate" title="${reasonText}">${reasonText}</td>
                     <td class="px-4 py-4 text-center" style="vertical-align: middle;">${imageCellHTML}</td>
                     <td class="px-4 py-4 text-center action-cell">
                         <div class="flex justify-center items-center gap-2">
