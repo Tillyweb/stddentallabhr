@@ -108,7 +108,6 @@
 
         <!-- Main Menu Section -->
         <div id="main-menu-section" class="w-full max-w-lg relative z-10">
-            <!-- Error Panel for initial load failure -->
             <div id="initial-load-error" class="hidden glass-panel p-6 mb-4 bg-red-100 border-red-500 border-2 text-left">
                 <h3 class="text-lg font-bold text-red-800 text-center">เกิดข้อผิดพลาดในการโหลดข้อมูล</h3>
                 <p class="text-sm text-red-700 mt-2">ไม่สามารถเชื่อมต่อกับ Google Sheet ของคุณได้</p>
@@ -173,9 +172,8 @@
         </div>
 
         <!-- Check Leave Section -->
-        <div id="check-leave-section" class="w-full max-w-6xl hidden relative z-10">
+        <div id="check-leave-section" class="w-full max-w-6xl hidden relative z-10 flex flex-col justify-center">
             <div id="check-leave-content" class="w-full">
-                <!-- ✨ MODIFIED: Login Form -->
                 <div id="login-section" class="min-h-[80vh] flex flex-col items-center justify-center w-full relative">
                     <div class="glass-panel p-6 sm:p-8 w-full max-w-md">
                         <h2 class="text-center text-2xl font-bold text-gray-900">ตรวจสอบวันลา</h2>
@@ -202,22 +200,20 @@
                 <div id="loading-section" class="text-center hidden p-10"><div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4 mx-auto"></div><h2 class="text-xl font-semibold text-gray-700">กำลังดึงข้อมูล...</h2></div>
                 <div id="dashboard-section" class="w-full hidden">
                      <header class="flex flex-col items-center mb-8 gap-4">
-                        <a id="employee-photo-link" href="#" target="_blank" rel="noopener noreferrer" class="relative">
-                            <img id="employee-photo-display" src="" alt="รูปโปรไฟล์" class="h-28 w-28 rounded-full object-cover bg-white/50 p-1 shadow-lg">
-                             <div id="employee-photo-loader" class="absolute inset-0 rounded-full bg-black/60 items-center justify-center hidden">
-                                <div class="loader h-8 w-8 border-4 border-t-4 border-gray-200"></div>
-                            </div>
-                        </a>
                         <div class="text-center">
                             <div class="flex items-center gap-2 justify-center">
                                  <h1 class="text-3xl font-bold text-gray-900" id="welcome-message"></h1>
-                                 <button id="btn-change-photo" title="อัปโหลด/เปลี่ยนรูปโปรไฟล์" class="text-2xl hover:opacity-75 transition-opacity">📸</button>
                             </div>
-                            <button id="logout-button" class="mt-2 text-sm text-gray-700 hover:text-black">ออกจากระบบ</button>
+                            <div class="flex items-center gap-2 justify-center mt-2">
+                                <span class="text-sm text-gray-700">รหัสผ่าน:</span>
+                                <span id="password-display" class="font-mono text-sm tracking-widest text-gray-800">••••••</span>
+                                <button id="btn-change-password" title="เปลี่ยนรหัสผ่าน" class="text-xl hover:opacity-75 transition-opacity">✏️</button>
+                            </div>
+                            <button id="logout-button" class="mt-4 text-sm text-gray-700 hover:text-black underline">ออกจากระบบ</button>
                         </div>
                     </header>
                     <div class="mb-8"><h2 class="text-xl font-bold text-gray-900 mb-4" id="summary-title"></h2><div id="leave-summary-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"></div></div>
-                    <div><h2 class="text-xl font-bold text-gray-900 mb-4" id="history-title"></h2><div class="glass-panel overflow-hidden"><div class="overflow-x-auto"><table class="min-w-full"><thead class="border-b border-white/20"><tr><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ประเภท</th><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">เริ่มลา</th><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">สิ้นสุด</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">วัน</th><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">เหตุผล</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">สถานะ</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">หลักฐาน</th></tr></thead><tbody id="leave-history-body" class="divide-y divide-white/20"></tbody></table></div></div></div>
+                    <div><h2 class="text-xl font-bold text-gray-900 mb-4" id="history-title"></h2><div class="glass-panel overflow-hidden"><div class="overflow-x-auto"><table class="min-w-full"><thead class="border-b border-white/20"><tr><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ประเภท</th><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">เริ่มลา</th><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">สิ้นสุด</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">วัน</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">ชั่วโมง</th><th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">เหตุผล</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">สถานะ</th><th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">หลักฐาน</th></tr></thead><tbody id="leave-history-body" class="divide-y divide-white/20"></tbody></table></div></div></div>
                 </div>
             </div>
         </div>
@@ -228,7 +224,7 @@
                 <h1 class="text-3xl font-bold text-gray-900">รายการรออนุมัติ</h1>
             </div>
             <div class="glass-panel overflow-hidden">
-                <div class="overflow-x-auto"><table class="min-w-full"><thead class="border-b border-white/20"><tr><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">พนักงาน</th><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ประเภท</th><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">วันที่ลา</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">วัน</th><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">เหตุผล</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">หลักฐาน</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">การกระทำ</th></tr></thead><tbody id="approval-list-body" class="divide-y divide-white/20"></tbody></table></div>
+                <div class="overflow-x-auto"><table class="min-w-full"><thead class="border-b border-white/20"><tr><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">พนักงาน</th><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ประเภท</th><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">วันที่ลา</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">วัน</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">ชั่วโมง</th><th class="px-4 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">เหตุผล</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">หลักฐาน</th><th class="px-4 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">การกระทำ</th></tr></thead><tbody id="approval-list-body" class="divide-y divide-white/20"></tbody></table></div>
             </div>
             <div class="mt-8 text-center">
                 <button class="btn-back w-full sm:w-auto text-base py-3 px-8 rounded-full font-bold transition-all duration-300 ease-in-out transform hover:scale-105" style="background-color: rgba(255, 255, 255, 0.2); color: #111827; border: 1px solid rgba(255, 255, 255, 0.3);">กลับไปหน้าหลัก</button>
@@ -256,6 +252,27 @@
                 </form>
             </div>
         </div>
+
+        <!-- Change Password Modal -->
+        <div id="change-password-modal" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+            <div class="glass-panel p-8 w-full max-w-sm">
+                <h2 class="text-2xl font-bold text-center text-gray-900 mb-4">เปลี่ยนรหัสผ่าน</h2>
+                <form id="change-password-form">
+                    <div class="text-center">
+                         <label for="new-password" class="block text-sm font-medium text-gray-800 mb-2">รหัสผ่านใหม่</label>
+                        <input type="password" id="new-password" class="glass-input text-center" required>
+                    </div>
+                    <p id="change-password-error" class="text-red-500 text-sm text-center mt-2 hidden"></p>
+                    <div class="flex gap-4 mt-6">
+                        <button type="button" id="btn-close-password-modal" class="w-1/2 text-base py-3 px-6 rounded-full font-bold transition-all duration-300 ease-in-out transform hover:scale-105" style="background-color: rgba(255, 255, 255, 0.2); color: #111827; border: 1px solid rgba(255, 255, 255, 0.3);">ยกเลิก</button>
+                        <button type="submit" id="change-password-submit" class="w-1/2 text-base py-3 px-6 rounded-full font-bold text-white transition-all duration-300 ease-in-out transform hover:scale-105 flex justify-center items-center" style="background-color: var(--primary-hover);">
+                            <span class="btn-text">บันทึก</span>
+                            <div class="loader h-5 w-5 hidden"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -269,10 +286,6 @@
         // --- DOM Elements ---
         const evidenceUploadInput = document.getElementById('evidence-upload-input');
         const employeePhotoUploadInput = document.getElementById('employee-photo-upload-input');
-        const employeePhotoLink = document.getElementById('employee-photo-link');
-        const employeePhotoDisplay = document.getElementById('employee-photo-display');
-        const employeePhotoLoader = document.getElementById('employee-photo-loader');
-        const btnChangePhoto = document.getElementById('btn-change-photo');
         const mainMenuSection = document.getElementById('main-menu-section');
         const requestLeaveSection = document.getElementById('request-leave-section');
         const checkLeaveSection = document.getElementById('check-leave-section');
@@ -309,6 +322,12 @@
         const managerLoginError = document.getElementById('manager-login-error');
         const btnCloseModal = document.getElementById('btn-close-modal');
         const emojiContainer = document.getElementById('emoji-container');
+        const changePasswordModal = document.getElementById('change-password-modal');
+        const changePasswordForm = document.getElementById('change-password-form');
+        const newPasswordInput = document.getElementById('new-password');
+        const btnClosePasswordModal = document.getElementById('btn-close-password-modal');
+        const passwordDisplay = document.getElementById('password-display');
+        const btnChangePassword = document.getElementById('btn-change-password');
         
         // --- CORE FUNCTIONS ---
         function displayInitialLoadError(errorMessage) {
@@ -406,7 +425,7 @@
         btnGotoCheck.addEventListener('click', async () => {
              try {
                 await fetchDataFromGoogleSheets();
-                populateLoginDropdown(); // ✨ ADDED: Populate the new login dropdown
+                populateLoginDropdown(); 
                 showSection(checkLeaveSection);
             } catch (error) { /* Error handled */ }
         });
@@ -491,7 +510,6 @@
 
         // --- CHECK LEAVE (LOGIN & DASHBOARD) SECTION ---
         
-        // ✨ NEW: Function to populate login dropdown
         function populateLoginDropdown() {
             loginEmployeeIdSelect.innerHTML = '<option value="" disabled selected>-- กรุณาเลือกพนักงาน --</option>';
             appData.employees.forEach(emp => {
@@ -502,7 +520,6 @@
             });
         }
 
-        // ✨ MODIFIED: Login form logic
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const employeeId = loginEmployeeIdSelect.value;
@@ -550,18 +567,8 @@
             welcomeMessage.textContent = `สวัสดี, ${currentEmployee.first_name}`;
             summaryTitle.textContent = `สรุปวันลาคงเหลือปี ${currentYear}`;
             historyTitle.textContent = `ประวัติการลา`;
-
-            const thumbnailUrl = getGoogleDriveThumbnail(currentEmployee.photo_url);
-            employeePhotoDisplay.src = thumbnailUrl || 'https://placehold.co/112x112/a78bfa/FFFFFF?text=👤';
-            employeePhotoDisplay.onerror = () => { employeePhotoDisplay.src = 'https://placehold.co/112x112/a78bfa/FFFFFF?text=👤'; };
-
-            if (currentEmployee.photo_url) {
-                employeePhotoLink.href = currentEmployee.photo_url;
-                employeePhotoLink.style.pointerEvents = 'auto';
-            } else {
-                employeePhotoLink.href = '#';
-                employeePhotoLink.style.pointerEvents = 'none';
-            }
+            
+            passwordDisplay.textContent = String(currentEmployee.Password_id).replace(/./g, '•');
             
             displayLeaveBalances(currentEmployee.employee_id);
             displayLeaveHistory(currentEmployee.employee_id);
@@ -624,12 +631,14 @@
                     : `<button class="btn-upload-evidence text-2xl hover:opacity-75 transition-opacity" data-record-id="${record.record_id}" title="อัปโหลดหลักฐาน">📤</button>`;
                 
                 const reasonText = (record.reason && record.reason !== '0') ? record.reason : '-';
+                const hoursText = record.hr_taken > 0 ? record.hr_taken : '-';
 
                 leaveHistoryBody.innerHTML += `<tr class="hover:bg-white/10">
                     <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${leaveTypesMap.get(record.leave_type_id)}</div></td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${startDate}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${endDate}</td>
                     <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">${record.days_taken}</td>
+                    <td class="px-6 py-4 text-center text-sm font-medium text-gray-900">${hoursText}</td>
                     <td class="px-6 py-4 text-sm text-gray-800 max-w-[150px] truncate" title="${reasonText}">${reasonText}</td>
                     <td class="px-6 py-4 text-center"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[record.status] || ''}">${statusText[record.status] || record.status}</span></td>
                     <td class="px-6 py-4 text-center text-sm evidence-cell" style="vertical-align: middle;">${evidenceCellHTML}</td>
@@ -646,10 +655,8 @@
             }
         });
 
-        btnChangePhoto.addEventListener('click', () => {
-            if (currentEmployee) {
-                employeePhotoUploadInput.click();
-            }
+        btnChangePassword.addEventListener('click', () => {
+            changePasswordModal.classList.remove('hidden');
         });
 
         employeePhotoUploadInput.addEventListener('change', (e) => {
@@ -661,7 +668,8 @@
         });
         
         async function uploadEmployeePhoto(file) {
-            employeePhotoLoader.style.display = 'flex'; 
+            const photoLoader = document.getElementById('employee-photo-loader');
+            photoLoader.style.display = 'flex'; 
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = async () => {
@@ -695,12 +703,12 @@
                 } catch (err) {
                     showToast(`เกิดข้อผิดพลาด: ${err.message}`, 'error');
                 } finally {
-                    employeePhotoLoader.style.display = 'none'; 
+                    photoLoader.style.display = 'none'; 
                 }
             };
             reader.onerror = () => {
                 showToast('ไม่สามารถอ่านไฟล์ได้', 'error');
-                employeePhotoLoader.style.display = 'none';
+                photoLoader.style.display = 'none';
             };
         }
 
@@ -756,7 +764,7 @@
             };
         }
 
-        // --- MANAGER APPROVAL SECTION ---
+        // --- MANAGER & PASSWORD MODAL LOGIC ---
         managerLoginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const submitBtn = document.getElementById('manager-login-submit');
@@ -783,14 +791,73 @@
             }, 500);
         });
 
+        btnClosePasswordModal.addEventListener('click', () => {
+            changePasswordModal.classList.add('hidden');
+            changePasswordForm.reset();
+        });
+
+        changePasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPassword = newPasswordInput.value;
+            if (!newPassword || newPassword.length < 4) {
+                showToast('รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('change-password-submit');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const loader = submitBtn.querySelector('.loader');
+            
+            btnText.classList.add('hidden');
+            loader.classList.remove('hidden');
+            submitBtn.disabled = true;
+
+            const payload = {
+                action: 'UPDATE_PASSWORD',
+                employee_id: currentEmployee.employee_id,
+                new_password: newPassword
+            };
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showToast('เปลี่ยนรหัสผ่านสำเร็จ', 'success');
+                    const employeeIndex = appData.employees.findIndex(emp => emp.employee_id === currentEmployee.employee_id);
+                    if (employeeIndex !== -1) {
+                        appData.employees[employeeIndex].Password_id = newPassword;
+                        currentEmployee.Password_id = newPassword;
+                    }
+                    displayDashboard();
+                    changePasswordModal.classList.add('hidden');
+                    changePasswordForm.reset();
+                } else {
+                    throw new Error(result.message || 'การอัปเดตล้มเหลว');
+                }
+            } catch (err) {
+                 showToast(`เกิดข้อผิดพลาด: ${err.message}`, 'error');
+            } finally {
+                btnText.classList.remove('hidden');
+                loader.classList.add('hidden');
+                submitBtn.disabled = false;
+            }
+        });
+
+
+        // --- APPROVAL LIST LOGIC ---
         function displayApprovalList() {
-            approvalListBody.innerHTML = '<tr><td colspan="7" class="text-center py-10"><div class="loader mx-auto"></div><p>กำลังโหลด...</p></td></tr>';
+            approvalListBody.innerHTML = '<tr><td colspan="8" class="text-center py-10"><div class="loader mx-auto"></div><p>กำลังโหลด...</p></td></tr>';
             const pendingRecords = appData.records.filter(r => r.status === 'Pending').sort((a,b) => new Date(a.start_date) - new Date(b.start_date));
             const employeesMap = new Map(appData.employees.map(e => [e.employee_id, `${e.first_name} ${e.last_name}`]));
             const leaveTypesMap = new Map(appData.leaveTypes.map(lt => [lt.leave_type_id, lt.type_name_th]));
             
             if (pendingRecords.length === 0) {
-                approvalListBody.innerHTML = `<tr><td colspan="7" class="text-center py-12 text-gray-500">ไม่มีรายการรออนุมัติ</td></tr>`;
+                approvalListBody.innerHTML = `<tr><td colspan="8" class="text-center py-12 text-gray-500">ไม่มีรายการรออนุมัติ</td></tr>`;
                 return;
             }
             
@@ -802,12 +869,14 @@
                     : `-`;
 
                 const reasonText = (record.reason && record.reason !== '0') ? record.reason : '-';
+                const hoursText = record.hr_taken > 0 ? record.hr_taken : '-';
 
                 const rowHTML = `<tr id="approval-row-${record.record_id}" class="hover:bg-white/10">
                     <td class="px-4 py-4 whitespace-nowrap"><div class="font-medium text-gray-900">${employeesMap.get(record.employee_id) || record.employee_id}</div></td>
                     <td class="px-4 py-4 whitespace-nowrap text-gray-700">${leaveTypesMap.get(record.leave_type_id)}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">${new Date(record.start_date).toLocaleDateString('th-TH')} - ${new Date(record.end_date).toLocaleDateString('th-TH')}</td>
                     <td class="px-4 py-4 text-center text-gray-900 font-medium">${record.days_taken}</td>
+                    <td class="px-4 py-4 text-center text-gray-900 font-medium">${hoursText}</td>
                     <td class="px-4 py-4 text-sm text-gray-800 max-w-[200px] truncate" title="${reasonText}">${reasonText}</td>
                     <td class="px-4 py-4 text-center" style="vertical-align: middle;">${imageCellHTML}</td>
                     <td class="px-4 py-4 text-center action-cell">
